@@ -4,6 +4,10 @@ import time
 import yaml
 import importlib.resources as pkg_resources
 from threading import Lock
+import base64
+import requests
+import cv2
+import numpy as np
 
 from PyQt5.QtCore import QObject, QThread, pyqtSignal, pyqtSlot
 
@@ -13,6 +17,7 @@ from anylabeling.views.labeling.logger import logger
 from anylabeling.config import get_config, save_config
 from anylabeling.services.auto_labeling.types import AutoLabelingResult
 from anylabeling.services.auto_labeling.utils import TimeoutContext
+from anylabeling.views.labeling.shape import Shape
 from anylabeling.services.auto_labeling import (
     _CUSTOM_MODELS,
     _CACHED_AUTO_LABELING_MODELS,
@@ -44,6 +49,7 @@ class ModelManager(QObject):
 
     def __init__(self):
         super().__init__()
+        self.remote_api_url = os.environ.get("XANYLABELING_REMOTE_API")
         self.model_configs = []
 
         self.loaded_model_config = None
@@ -145,6 +151,9 @@ class ModelManager(QObject):
 
     def load_custom_model(self, config_file):
         """Run custom model loading in a thread"""
+        if self.remote_api_url:
+            self.load_model(config_file)
+            return True
         config_file = os.path.normpath(os.path.abspath(config_file))
         if (
             self.model_download_thread is not None
@@ -250,6 +259,31 @@ class ModelManager(QObject):
 
     def load_model(self, config_file):
         """Run model loading in a thread"""
+        if self.remote_api_url:
+            if not config_file:
+                self.unload_model()
+                self.new_model_status.emit(self.tr("No model selected."))
+                return
+            if config_file.startswith(":/"):
+                config_file_name = config_file[2:]
+                resource_path = pkg_resources.files(auto_labeling_configs).joinpath(
+                    "auto_labeling", config_file_name
+                )
+                with open(resource_path, "r", encoding="utf-8") as f:
+                    cfg = yaml.safe_load(f)
+            else:
+                with open(config_file, "r", encoding="utf-8") as f:
+                    cfg = yaml.safe_load(f)
+            self.loaded_model_config = {
+                "name": cfg.get("name"),
+                "display_name": cfg.get("display_name", cfg.get("name")),
+                "config_file": config_file,
+            }
+            self.new_model_status.emit(
+                self.tr("Selected remote model: {name}").format(name=self.loaded_model_config["display_name"])
+            )
+            self.model_loaded.emit(self.loaded_model_config)
+            return
         if (
             self.model_download_thread is not None
             and self.model_download_thread.isRunning()
@@ -1946,6 +1980,51 @@ class ModelManager(QObject):
             self.new_model_status.emit(
                 self.tr("Model is not loaded. Choose a mode to continue.")
             )
+            self.prediction_finished.emit()
+            return
+
+        if self.remote_api_url:
+            try:
+                _, buffer = cv2.imencode(".jpg", image)
+                img_b64 = base64.b64encode(buffer.tobytes()).decode("utf-8")
+                payload = {
+                    "model": self.loaded_model_config["name"],
+                    "image": img_b64,
+                    "filename": filename,
+                    "run_tracker": run_tracker,
+                }
+                if text_prompt is not None:
+                    payload["text_prompt"] = text_prompt
+                resp = requests.post(
+                    f"{self.remote_api_url.rstrip('/')}/predict",
+                    json=payload,
+                    timeout=60,
+                )
+                resp.raise_for_status()
+                data = resp.json()
+                shapes = []
+                for s in data.get("shapes", []):
+                    shape = Shape()
+                    shape.load_from_dict(s)
+                    shapes.append(shape)
+                auto_labeling_result = AutoLabelingResult(
+                    shapes,
+                    replace=data.get("replace", True),
+                    description=data.get("description", ""),
+                )
+                if batch:
+                    return auto_labeling_result
+                else:
+                    self.new_auto_labeling_result.emit(auto_labeling_result)
+                    self.new_model_status.emit(
+                        self.tr("Finished inferencing AI model. Check the result.")
+                    )
+            except Exception as e:
+                logger.error(f"Error in remote predict_shapes: {e}")
+                template = "Error in model prediction: {error_message}"
+                translated_template = self.tr(template)
+                error_text = translated_template.format(error_message=str(e))
+                self.new_model_status.emit(error_text)
             self.prediction_finished.emit()
             return
 

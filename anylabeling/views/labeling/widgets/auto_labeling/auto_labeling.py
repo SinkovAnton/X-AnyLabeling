@@ -51,6 +51,7 @@ class AutoLabelingWidget(QWidget):
         uic.loadUi(os.path.join(current_dir, "auto_labeling.ui"), self)
 
         self.model_manager = ModelManager()
+        self.model_manager.set_remote_api_url(parent._config.get("remote_api_url"))
         self.model_manager.new_model_status.connect(self.on_new_model_status)
         self.new_model_selected.connect(self.model_manager.load_model)
         self.new_custom_model_selected.connect(

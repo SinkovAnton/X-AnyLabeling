@@ -124,6 +124,24 @@ Results have been saved to:
     </message>
 </context>
 <context>
+    <name>RemoteServerDialog</name>
+    <message>
+        <location filename="../../views/labeling/widgets/remote_server_dialog.py" line="22"/>
+        <source>Set Remote Server</source>
+        <translation>设置远程服务器</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/remote_server_dialog.py" line="26"/>
+        <source>Enter remote server URL:</source>
+        <translation>输入远程服务器地址：</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/remote_server_dialog.py" line="28"/>
+        <source>e.g. http://host:8000</source>
+        <translation>例如 http://host:8000</translation>
+    </message>
+</context>
+<context>
     <name>AboutDialog</name>
     <message>
         <location filename="../../views/labeling/widgets/about_dialog.py" line="114"/>
@@ -2551,6 +2569,16 @@ Reset the label as {}.</source>
         <location filename="../../views/labeling/label_widget.py" line="705"/>
         <source>Manage Group ID</source>
         <translation>管理群组编号</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/label_widget.py" line="708"/>
+        <source>&amp;Remote Server</source>
+        <translation>远程服务器</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/label_widget.py" line="708"/>
+        <source>Configure remote inference server</source>
+        <translation>配置远程推理服务器</translation>
     </message>
     <message>
         <location filename="../../views/labeling/label_widget.py" line="1197"/>

@@ -53,6 +53,7 @@ from .widgets import (
     DigitShortcutDialog,
     LabelModifyDialog,
     GroupIDModifyDialog,
+    RemoteServerDialog,
     OverviewDialog,
     SearchBar,
     ToolBar,
@@ -718,6 +719,12 @@ class LabelingWidget(LabelDialog):
             shortcuts["edit_group_id"],
             icon="edit",
             tip=self.tr("Manage Group ID"),
+        )
+        remote_server = action(
+            self.tr("&Remote Server"),
+            self.set_remote_server,
+            icon=None,
+            tip=self.tr("Configure remote inference server"),
         )
         union_selection = action(
             self.tr("&Union Selection"),
@@ -1530,6 +1537,7 @@ class LabelingWidget(LabelDialog):
                 digit_shortcut_manager,
                 label_manager,
                 gid_manager,
+                remote_server,
                 None,
                 hbb_to_obb,
                 obb_to_hbb,
@@ -2213,6 +2221,20 @@ class LabelingWidget(LabelDialog):
         result = modify_gid_dialog.exec_()
         if result == QtWidgets.QDialog.Accepted:
             self.load_file(self.filename)
+
+    def set_remote_server(self):
+        dialog = RemoteServerDialog(
+            parent=self,
+            current_url=self._config.get(
+                "remote_api_url", os.environ.get("XANYLABELING_REMOTE_API", "")
+            ),
+        )
+        result = dialog.exec_()
+        if result == QtWidgets.QDialog.Accepted:
+            url = dialog.get_url()
+            self._config["remote_api_url"] = url or None
+            save_config(self._config)
+            self.auto_labeling_widget.model_manager.set_remote_api_url(url)
 
     def open_chatbot(self):
         dialog = ChatbotDialog(self)

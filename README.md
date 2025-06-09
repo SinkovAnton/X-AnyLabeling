@@ -63,6 +63,7 @@ https://github.com/user-attachments/assets/52cbdb5d-cc60-4be5-826f-903ea4330ca8
 - Enable import/export for formats like COCO, VOC, YOLO, DOTA, MOT, MASK, PPOCR, VLM-R1.
 - Handles tasks like `classification`, `detection`, `segmentation`, `caption`, `rotation`, `tracking`, `estimation`, `ocr` and so on.
 - Supports diverse annotation styles: `polygons`, `rectangles`, `rotated boxes`, `circles`, `lines`, `points`, and annotations for `text detection`, `recognition`, and `KIE`.
+- Supports remote inference via REST API when `XANYLABELING_REMOTE_API` is set.
 
 
 ### Model library
@@ -128,6 +129,16 @@ https://github.com/user-attachments/assets/52cbdb5d-cc60-4be5-826f-903ea4330ca8
 - [Counting](./examples/counting/)
   - [GeCo](./examples/counting/geco/README.md)
 
+## Running as a server
+
+Start the API service on the remote machine:
+
+```bash
+python -m anylabeling.server.api
+```
+
+On the client, set the environment variable `XANYLABELING_REMOTE_API` to the server URL (e.g. `http://server:8000`) before launching the application. All predictions will then be executed remotely.
+You can also configure the address from **Tool → Remote Server** in the GUI.
 
 ## Contact
 

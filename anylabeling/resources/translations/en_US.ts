@@ -123,6 +123,24 @@ Results have been saved to:
     </message>
 </context>
 <context>
+    <name>RemoteServerDialog</name>
+    <message>
+        <location filename="../../views/labeling/widgets/remote_server_dialog.py" line="22"/>
+        <source>Set Remote Server</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/remote_server_dialog.py" line="26"/>
+        <source>Enter remote server URL:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/remote_server_dialog.py" line="28"/>
+        <source>e.g. http://host:8000</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>AboutDialog</name>
     <message>
         <location filename="../../views/labeling/widgets/about_dialog.py" line="114"/>
@@ -2469,6 +2487,16 @@ Reset the label as {}.</source>
     <message>
         <location filename="../../views/labeling/label_widget.py" line="705"/>
         <source>Manage Group ID</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/label_widget.py" line="708"/>
+        <source>&amp;Remote Server</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/label_widget.py" line="708"/>
+        <source>Configure remote inference server</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

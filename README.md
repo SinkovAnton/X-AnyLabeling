@@ -138,6 +138,7 @@ python -m anylabeling.server.api
 ```
 
 On the client, set the environment variable `XANYLABELING_REMOTE_API` to the server URL (e.g. `http://server:8000`) before launching the application. All predictions will then be executed remotely.
+You can also configure the address from **Tool → Remote Server** in the GUI.
 
 ## Contact
 

@@ -46,6 +46,7 @@ class ModelManager(QObject):
     prediction_finished = pyqtSignal()
     request_next_files_requested = pyqtSignal()
     output_modes_changed = pyqtSignal(dict, str)
+    remote_api_changed = pyqtSignal(str)
 
     def __init__(self):
         super().__init__()
@@ -61,6 +62,18 @@ class ModelManager(QObject):
         self.model_execution_thread_lock = Lock()
 
         self.load_model_configs()
+
+    def set_remote_api_url(self, url: str | None):
+        """Set the remote API endpoint used for inference."""
+        if url:
+            url = url.strip()
+        self.remote_api_url = url or None
+        if self.remote_api_url:
+            os.environ["XANYLABELING_REMOTE_API"] = self.remote_api_url
+        else:
+            os.environ.pop("XANYLABELING_REMOTE_API", None)
+        self.unload_model()
+        self.remote_api_changed.emit(self.remote_api_url or "")
 
     def load_model_configs(self):
         """Load model configs"""
@@ -1961,8 +1974,21 @@ class ModelManager(QObject):
     def unload_model(self):
         """Unload model"""
         if self.loaded_model_config is not None:
-            self.loaded_model_config["model"].unload()
+            try:
+                self.loaded_model_config["model"].unload()
+            except Exception:
+                pass
             self.loaded_model_config = None
+            try:
+                import gc
+
+                gc.collect()
+                import torch
+
+                if torch.cuda.is_available():
+                    torch.cuda.empty_cache()
+            except Exception:
+                pass
 
     def predict_shapes(
         self,

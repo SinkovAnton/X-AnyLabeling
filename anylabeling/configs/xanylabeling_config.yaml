@@ -150,6 +150,9 @@ shortcuts:
   auto_run: Ctrl+M
   loop_thru_labels: Ctrl+Shift+N
 
+# Remote inference
+remote_api_url: null
+
 # Auto labeling
 custom_models: []
 

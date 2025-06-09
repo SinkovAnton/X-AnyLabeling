@@ -1,6 +1,10 @@
 # flake8: noqa
 
-from .batch import run_all_images
+def run_all_images(*args, **kwargs):
+    """Lazy import to avoid heavy dependencies during module import."""
+    from .batch import run_all_images as _run_all_images
+
+    return _run_all_images(*args, **kwargs)
 from .colormap import label_colormap
 from .crop import save_crop
 from .export import (
